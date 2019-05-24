@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {classNames} from '@shopify/css-utilities';
 
-import {Action} from '../../types';
+import {Action, contentContextTypes} from '../../types';
 import Image from '../Image';
 import {buttonFrom} from '../Button';
 import Stack from '../Stack';
@@ -30,6 +30,8 @@ export interface Props {
 }
 
 export default class EmptyState extends React.PureComponent<Props, never> {
+  static contextTypes = contentContextTypes;
+
   render() {
     const {
       children,
@@ -42,9 +44,14 @@ export default class EmptyState extends React.PureComponent<Props, never> {
       footerContent,
     } = this.props;
 
+    const {withinContentContainer} = this.context;
+
     const className = classNames(
       styles.EmptyState,
       imageContained && styles.imageContained,
+      withinContentContainer
+        ? styles.withinContentContainer
+        : styles.withinPage,
     );
 
     const imageMarkup = largeImage ? (
@@ -78,19 +85,22 @@ export default class EmptyState extends React.PureComponent<Props, never> {
       </div>
     ) : null;
 
+    const headingSize = withinContentContainer ? 'small' : 'medium';
+    const primaryActionSize = withinContentContainer ? 'medium' : 'large';
+
     return (
       <div className={className}>
         <div className={styles.Section}>
           <div className={styles.DetailsContainer}>
             <div className={styles.Details}>
               <TextContainer>
-                <DisplayText size="medium">{heading}</DisplayText>
+                <DisplayText size={headingSize}>{heading}</DisplayText>
                 <div className={styles.Content}>{children}</div>
               </TextContainer>
 
               <div className={styles.Actions}>
                 <Stack alignment="center">
-                  {buttonFrom(action, {primary: true, size: 'large'})}
+                  {buttonFrom(action, {primary: true, size: primaryActionSize})}
                   {secondaryActionMarkup}
                 </Stack>
               </div>
