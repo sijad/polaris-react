@@ -466,9 +466,10 @@ class ResourceList extends React.Component<CombinedProps, State> {
       <div className={styles['HeaderWrapper-overlay']} />
     ) : null;
 
-    const showEmptyState = filterControl && !this.itemsExist() && !loading;
+    const showEmptySearchResults =
+      filterControl && !this.itemsExist() && !loading;
 
-    const headerMarkup = !showEmptyState &&
+    const headerMarkup = !showEmptySearchResults &&
       (showHeader || needsHeader) &&
       this.listRef.current && (
         <div className={styles.HeaderOuterWrapper}>
@@ -506,7 +507,7 @@ class ResourceList extends React.Component<CombinedProps, State> {
         </div>
       );
 
-    const emptyStateMarkup = showEmptyState ? (
+    const emptySearchResultsMarkup = showEmptySearchResults ? (
       <div className={styles.EmptySearchResultWrapper}>
         <EmptySearchResult {...this.emptySearchResultText} withIllustration />
       </div>
@@ -556,7 +557,7 @@ class ResourceList extends React.Component<CombinedProps, State> {
         {items.map(this.renderItem)}
       </ul>
     ) : (
-      emptyStateMarkup
+      emptySearchResultsMarkup
     );
 
     return (
