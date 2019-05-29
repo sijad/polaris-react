@@ -28,7 +28,7 @@ keywords:
 
 # Empty state
 
-Empty states are used when a list, table, or chart has no items or data to show. This is an opportunity to provide explanation or guidance to help merchants progress. The empty state component is intended for use when a full page in the admin is empty, and not for individual elements or areas in the interface.
+Empty states are used when a list, table, or chart has no items or data to show. This is an opportunity to provide explanation or guidance to help merchants progress. The empty state component is intended for use when the data which would act as the main content of a page in the admin is empty.
 
 ---
 
@@ -199,6 +199,34 @@ Use to provide additional but non-critical context for a new product or feature.
 >
   <p>Track and receive your incoming inventory from suppliers.</p>
 </EmptyState>
+```
+
+### Empty state in a card
+
+<!-- example-for: web -->
+
+Use to explain a single feature within the context of its container before merchants have used it.
+
+```jsx
+<Card title="Inventory transfers">
+  <EmptyState
+    heading="Manage your inventory transfers"
+    action={{content: 'Add transfer'}}
+    secondaryAction={{content: 'Learn more', url: 'https://help.shopify.com'}}
+    footerContent={
+      <p>
+        If you don’t want to add a transfer, you can import your inventory from{' '}
+        <Link monochrome url="/settings">
+          settings
+        </Link>
+        .
+      </p>
+    }
+    image="https://cdn.shopify.com/s/files/1/0757/9955/files/empty-state.svg"
+  >
+    <p>Track and receive your incoming inventory from suppliers.</p>
+  </EmptyState>
+</Card>
 ```
 
 ---
