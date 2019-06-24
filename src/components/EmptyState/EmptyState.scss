@@ -84,6 +84,7 @@ $illustration-width-cropped: calc(
 
 .withinContentContainer {
   .Section {
+    left: unset;
     flex-direction: column-reverse;
     align-items: center;
     justify-content: center;
