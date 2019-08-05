@@ -1,5 +1,3 @@
-export type ColorsToParse = ThemeColor;
-
 export type ThemeLogo = {
   /** Provides a path for a logo used on a dark background */
   topBarSource?: string;
@@ -13,16 +11,20 @@ export type ThemeLogo = {
   width?: number;
 } | null;
 
-export interface ThemeColor {
+export type CSSProperties = {
   [key: string]: string;
-}
-
-export interface TopBar extends ThemeColor {
-  background: string;
-}
+};
 
 export type ThemeColors = {
-  topBar: TopBar;
+  surface?: string;
+  brand?: string;
+  interaction?: string;
+  timeliness?: string;
+  positive?: string;
+  attention?: string;
+  warning?: string;
+  negative?: string;
+  accent?: string;
 };
 
 export interface Theme {
@@ -33,3 +35,24 @@ export interface Theme {
 }
 
 export type ThemeVariant = 'light' | 'dark';
+
+type StateProperties = 'default' | 'hover' | 'focus' | 'active' | 'disabled';
+type StyleProperties =
+  | 'text'
+  | 'textOnDark'
+  | 'textOnLight'
+  | 'textSubdued'
+  | 'textSubduedOnDark'
+  | 'textSubduedOnLight'
+  | 'icon'
+  | 'iconOnDark'
+  | 'iconOnLight'
+  | 'background'
+  | 'backgroundSubdued'
+  | 'border'
+  | 'gradient'
+  | 'shadow';
+
+export type ComponentThemeProperties = {
+  [Theme in StateProperties]?: {[Style in StyleProperties]?: string | string[]}
+};
