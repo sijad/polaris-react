@@ -1,11 +1,4 @@
-import {
-  colorTeal,
-  colorOrange,
-  colorYellow,
-  colorGreen,
-  colorPurple,
-} from '@shopify/polaris-tokens';
-import {HSLColor, HSLAColor, RGBColor} from '../color-types';
+import {HSLColor, HSLAColor} from '../color-types';
 import {
   colorToHsla,
   hslToString,
@@ -17,195 +10,279 @@ import {constructColorName} from '../color-names';
 import {lightenColor, darkenColor, opacifyColor} from '../color-manipulation';
 import {compose} from '../compose';
 
-import {Theme, CSSProperties, ComponentThemeProperties} from './types';
+import {CSSProperties, ComponentThemeProperties, Theme} from './types';
 
 const NAMESPACE = 'polaris';
 
-/*
-Since color ranges need to be aware of surface base darkness or lightness, this should just be a class
-
-Each color should create
-  - base
-  - on base
-    - subdued (15, 85)
-    - icon
-    - disabled (30, 70)
-  - 2 darkened stops from base
-
-  - surface (dark (l:5) or light (l:95) depending on surface base)
-  - on surface
-    - subdued
-    - icon
-    - disabled
-
-Surface should create
-  - shade
-    - one darkened stop
-  - border
-    - one darkened stop
-
-  - base
-    - card
-    - page
-  - on base
-    - subdued
-    - icon
-    - disabled
-  - base opacified
-
-  - opposing (opposite of base)
-  - on opposing
-    - subdued
-    - icon
-    - disabled
-  - opposing opacified
-
-  - range of grays for interactive elements (5-10?)
-*/
-
-export function setColors(theme: Theme): CSSProperties {
-  const {colors = {}} = theme;
-
-  const {
-    surface = '#0c0d0e',
-    brand = '#008060',
-    interaction = '#2A94FF',
-    negative = '#C43256',
-    timeliness = colorTeal,
-    warning = colorOrange,
-    attention = colorYellow,
-    positive = colorGreen,
-    accent = colorPurple,
-  } = colors;
-
-  return {
-    ...createSurfaceRange(surface),
-    ...createRoleRange(brand, 'brand'),
-    ...createRoleRange(interaction, 'interaction'),
-    ...createRoleRange(timeliness, 'timeliness'),
-    ...createRoleRange(positive, 'positive'),
-    ...createRoleRange(attention, 'attention'),
-    ...createRoleRange(warning, 'warning'),
-    ...createRoleRange(negative, 'negative'),
-    ...createRoleRange(accent, 'accent'),
-  };
-}
+const defaultRoleValues = {
+  surface: '#0c0d0e',
+  brand: '#008060',
+  interaction: '#2A94FF',
+  negative: '#C43256',
+  timeliness: '#90DFD6',
+  warning: '#FFA781',
+  attention: '#FFC453',
+};
 
 const hslToHex: (color: HSLColor | HSLAColor) => string = compose(
   rgbToHex,
   hslToRgb,
 );
 
-function createRoleRange(
-  baseColor: string,
-  colorRole: string,
-  options?: {
-    opacify?: boolean;
-    stops?: number;
-    increment?: number;
-  },
-): CSSProperties {
-  const {opacify = false, stops = 2, increment = 5} = options || {};
+type LightnessKeys = 'opposing' | 'base' | 'icon' | 'subdued' | 'disabled';
 
-  const hslBaseColor = colorToHsla(baseColor) as HSLColor;
-  const rgbBaseColor = hslToRgb(hslBaseColor);
+const lightness: {[Key in LightnessKeys]: [number, number]} = {
+  opposing: [1, 99],
+  base: [5, 95],
+  icon: [10, 90],
+  subdued: [15, 85],
+  disabled: [20, 80],
+};
 
-  const base = {
-    [constructColorName(NAMESPACE, colorRole)]: baseColor,
-  };
+const alpha = 1.0;
 
-  const darkRange = createDarkRange(
-    stops,
-    colorRole,
-    hslBaseColor as HSLColor,
-    increment,
-  );
-
-  const opaqueRange = opacify && createOpaqueRange(baseColor, colorRole);
-
-  const on = {
-    [constructColorName(NAMESPACE, colorRole, 'on')]: hslToHex({
-      hue: hslBaseColor.hue,
-      saturation: hslBaseColor.saturation,
-      lightness: isLight(rgbBaseColor) ? 5 : 95,
-    }),
-  };
-
-  return {
-    ...base,
-    ...darkRange,
-    ...opaqueRange,
-    ...on,
-  };
+export function setColors(theme: Theme) {
+  return new SchemeFactory(theme).scheme;
 }
 
-function createSurfaceRange(baseColor: string): CSSProperties {
-  const hslBaseColor: HSLColor = colorToHsla(baseColor) as HSLColor;
-  const rgbBaseColor: RGBColor = hslToRgb(hslBaseColor);
-  const isBaseLight: boolean = isLight(rgbBaseColor);
+class SchemeFactory {
+  scheme: CSSProperties = {};
 
-  let greyRange: CSSProperties;
+  private isLightTheme: boolean;
 
-  const colorRole = 'surface';
-  const stops = 19;
-  const increment = 5;
-  const options = {suffix: ''};
+  constructor(theme: Theme) {
+    const {colors} = theme;
+    const surface =
+      colors == null || colors.surface == null
+        ? defaultRoleValues.surface
+        : colors.surface;
 
-  if (isBaseLight) {
-    greyRange = createDarkRange(
-      stops,
-      colorRole,
-      hslBaseColor,
-      increment,
-      options,
-    );
-  } else {
-    greyRange = createLightRange(
-      stops,
-      colorRole,
-      hslBaseColor,
-      increment,
-      options,
-    );
+    this.setScheme(theme);
+    this.isLightTheme = isLight(hslToRgb(colorToHsla(surface) as HSLColor));
   }
 
-  const opposingColor = hslToHex({
-    hue: hslBaseColor.hue,
-    saturation: hslBaseColor.saturation,
-    lightness: isBaseLight ? 1 : 99,
-  });
+  private setScheme(theme: Theme) {
+    this.scheme = this.setColors(theme);
+  }
 
-  function getOnColor(baseIsLight: boolean) {
-    return hslToHex({
+  private setColors(theme: Theme): CSSProperties {
+    const {colors = {}} = theme;
+    const {createRoleRange, createSurfaceRange} = this;
+    const {
+      surface = defaultRoleValues.surface,
+      brand = defaultRoleValues.brand,
+      interaction = defaultRoleValues.interaction,
+      negative = defaultRoleValues.negative,
+      positive = defaultRoleValues.brand,
+      timeliness = defaultRoleValues.timeliness,
+      warning = defaultRoleValues.warning,
+      attention = defaultRoleValues.attention,
+    } = colors;
+
+    return {
+      ...createSurfaceRange(surface),
+      ...createRoleRange(brand, 'brand'),
+      ...createRoleRange(interaction, 'interaction'),
+      ...createRoleRange(timeliness, 'timeliness'),
+      ...createRoleRange(positive, 'positive'),
+      ...createRoleRange(attention, 'attention'),
+      ...createRoleRange(warning, 'warning'),
+      ...createRoleRange(negative, 'negative'),
+    };
+  }
+
+  private createRoleRange = (
+    baseColor: string,
+    colorRole: string,
+    options?: {
+      opacify?: boolean;
+      stops?: number;
+      increment?: number;
+    },
+  ): CSSProperties => {
+    const {opacify = false, stops = 2, increment = 5} = options || {};
+    const {isLightTheme} = this;
+    const hslBaseColor = colorToHsla(baseColor) as HSLColor;
+
+    const onBase = {
+      [constructColorName(NAMESPACE, colorRole, 'on')]: hslToString({
+        hue: hslBaseColor.hue,
+        saturation: hslBaseColor.saturation,
+        lightness: isLightTheme ? lightness.base[0] : lightness.base[1],
+        alpha,
+      }),
+      [constructColorName(NAMESPACE, colorRole, 'iconOn')]: hslToString({
+        hue: hslBaseColor.hue,
+        saturation: hslBaseColor.saturation,
+        lightness: isLightTheme ? lightness.icon[0] : lightness.icon[1],
+        alpha,
+      }),
+      [constructColorName(NAMESPACE, colorRole, 'subduedOn')]: hslToString({
+        hue: hslBaseColor.hue,
+        saturation: hslBaseColor.saturation,
+        lightness: isLightTheme ? lightness.subdued[0] : lightness.subdued[1],
+        alpha,
+      }),
+      [constructColorName(NAMESPACE, colorRole, 'disabledOn')]: hslToString({
+        hue: hslBaseColor.hue,
+        saturation: hslBaseColor.saturation,
+        lightness: isLightTheme ? lightness.disabled[0] : lightness.disabled[1],
+        alpha,
+      }),
+    };
+
+    const surface = {
       hue: hslBaseColor.hue,
       saturation: hslBaseColor.saturation,
-      lightness: baseIsLight ? 5 : 95,
-    });
-  }
+      lightness: isLightTheme ? lightness.base[0] : lightness.base[1],
+      alpha,
+    };
 
-  const on = {
-    [constructColorName(NAMESPACE, colorRole, 'onDark')]: getOnColor(false),
-    [constructColorName(NAMESPACE, colorRole, 'onLight')]: getOnColor(true),
-    [constructColorName(NAMESPACE, colorRole, 'onBase')]: getOnColor(
-      isBaseLight,
-    ),
-    [constructColorName(NAMESPACE, colorRole, 'onOpposing')]: getOnColor(
-      !isBaseLight,
-    ),
+    const onSurface = {
+      [constructColorName(NAMESPACE, colorRole, 'onSurface')]: hslToString({
+        hue: surface.hue,
+        saturation: surface.saturation,
+        lightness: !isLightTheme ? lightness.base[0] : lightness.base[1],
+        alpha,
+      }),
+      [constructColorName(NAMESPACE, colorRole, 'iconOnSurface')]: hslToString({
+        hue: surface.hue,
+        saturation: surface.saturation,
+        lightness: !isLightTheme ? lightness.icon[0] : lightness.icon[1],
+        alpha,
+      }),
+      [constructColorName(
+        NAMESPACE,
+        colorRole,
+        'subduedOnSurface',
+      )]: hslToString({
+        hue: surface.hue,
+        saturation: surface.saturation,
+        lightness: !isLightTheme ? lightness.subdued[0] : lightness.subdued[1],
+        alpha,
+      }),
+      [constructColorName(
+        NAMESPACE,
+        colorRole,
+        'disabledOnSurface',
+      )]: hslToString({
+        hue: surface.hue,
+        saturation: surface.saturation,
+        lightness: !isLightTheme
+          ? lightness.disabled[0]
+          : lightness.disabled[1],
+        alpha,
+      }),
+    };
+
+    return {
+      ...{
+        [constructColorName(NAMESPACE, colorRole)]: hslToString(colorToHsla(
+          baseColor,
+        ) as HSLAColor),
+      },
+      ...createDarkRange(stops, colorRole, hslBaseColor as HSLColor, increment),
+      ...onBase,
+      ...{
+        [constructColorName(NAMESPACE, colorRole, 'surface')]: hslToString(
+          surface,
+        ),
+      },
+      ...onSurface,
+      ...(opacify && createOpaqueRange(baseColor, colorRole)),
+    };
   };
 
-  return {
-    ...{
-      [constructColorName(NAMESPACE, colorRole, '0')]: baseColor,
-    },
-    ...greyRange,
-    ...createOpaqueRange(baseColor, colorRole, {
-      suffix: 'baseOpacified',
-    }),
-    ...createOpaqueRange(opposingColor, colorRole, {
-      suffix: 'opposingOpacified',
-    }),
-    ...on,
+  private createSurfaceRange = (baseColor: string): CSSProperties => {
+    const hslBaseColor: HSLColor = colorToHsla(baseColor) as HSLColor;
+    const {isLightTheme} = this;
+
+    let greyRange: CSSProperties;
+
+    const colorRole = 'surface';
+    const stops = 19;
+    const increment = 5;
+    const options = {suffix: ''};
+
+    if (isLightTheme) {
+      greyRange = createDarkRange(
+        stops,
+        colorRole,
+        hslBaseColor,
+        increment,
+        options,
+      );
+    } else {
+      greyRange = createLightRange(
+        stops,
+        colorRole,
+        hslBaseColor,
+        increment,
+        options,
+      );
+    }
+
+    const opposingColor = hslToHex({
+      hue: hslBaseColor.hue,
+      saturation: hslBaseColor.saturation,
+      lightness: isLightTheme ? 1 : 99,
+    });
+
+    function getOnColor(baseIsLight: boolean) {
+      return hslToHex({
+        hue: hslBaseColor.hue,
+        saturation: hslBaseColor.saturation,
+        lightness: baseIsLight ? 5 : 95,
+      });
+    }
+
+    const on = {
+      [constructColorName(NAMESPACE, colorRole, 'onDark')]: getOnColor(false),
+      [constructColorName(NAMESPACE, colorRole, 'onLight')]: getOnColor(true),
+      [constructColorName(NAMESPACE, colorRole, 'onBase')]: getOnColor(
+        isLightTheme,
+      ),
+      [constructColorName(NAMESPACE, colorRole, 'onOpposing')]: getOnColor(
+        !isLightTheme,
+      ),
+    };
+
+    //   - shade
+    //     - one darkened stop
+    //   - border
+    //     - one darkened stop
+    //
+    //   - base
+    //     - card
+    //     - page
+    //   - on base
+    //     - subdued
+    //     - icon
+    //     - disabled
+    //   - base opacified
+    //
+    //   - opposing (opposite of base)
+    //   - on opposing
+    //     - subdued
+    //     - icon
+    //     - disabled
+    //   - opposing opacified
+    //
+    //   - range of grays for interactive elements (5-10?)
+
+    return {
+      ...{
+        [constructColorName(NAMESPACE, colorRole, '0')]: baseColor,
+      },
+      ...greyRange,
+      ...createOpaqueRange(baseColor, colorRole, {
+        suffix: 'baseOpacified',
+      }),
+      ...createOpaqueRange(opposingColor, colorRole, {
+        suffix: 'opposingOpacified',
+      }),
+      ...on,
+    };
   };
 }
 
@@ -246,10 +323,10 @@ function createDarkRange(
   const {suffix = 'darkened'} = options || {};
   return Array.from({length: stops}, (_, i) => i + 1).reduce(
     (colorStyles: CSSProperties, stop) => {
-      const color = hslToHex(darkenColor(
+      const color = hslToString(darkenColor(
         hslBaseColor,
         increment * stop,
-      ) as HSLColor);
+      ) as HSLAColor);
       colorStyles[
         constructColorName(NAMESPACE, colorRole, `${suffix}${stop}`)
       ] = color;

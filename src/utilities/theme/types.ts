@@ -24,7 +24,6 @@ export type ThemeColors = {
   attention?: string;
   warning?: string;
   negative?: string;
-  accent?: string;
 };
 
 export interface Theme {
