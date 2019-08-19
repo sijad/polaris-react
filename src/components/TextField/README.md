@@ -351,25 +351,21 @@ function HiddenLabelExample() {
 Use when an optional, secondary action is closely associated with a text field. For example, on a field for entering a customs tariff code, a label action might be to look up the appropriate code from a table.
 
 ```jsx
-class LabelActionExample extends React.Component {
-  state = {
-    value: '6201.11.0000',
-  };
+function LabelActionExample() {
+  const [textFieldValue, setTextFieldValue] = useState('6201.11.0000');
 
-  handleChange = (value) => {
-    this.setState({value});
-  };
+  const handleTextFieldChange = useCallback((value) => {
+    setTextFieldValue(value);
+  }, []);
 
-  render() {
-    return (
-      <TextField
-        label="Tariff code"
-        value={this.state.value}
-        onChange={this.handleChange}
-        labelAction={{content: 'Look up codes'}}
-      />
-    );
-  }
+  return (
+    <TextField
+      label="Tariff code"
+      value={textFieldValue}
+      onChange={handleTextFieldChange}
+      labelAction={{content: 'Look up codes'}}
+    />
+  );
 }
 ```
 
@@ -378,29 +374,25 @@ class LabelActionExample extends React.Component {
 Use when input text should be aligned right.
 
 ```jsx
-class RightAlignExample extends React.Component {
-  state = {
-    value: '1',
-  };
+function RightAlignExample() {
+  const [textFieldValue, setTextFieldValue] = useState('1');
 
-  handleChange = (value) => {
-    this.setState({value});
-  };
+  const handleTextFieldChange = useCallback((value) => {
+    setTextFieldValue(value);
+  }, []);
 
-  render() {
-    return (
-      <Stack>
-        <Stack.Item fill>Price</Stack.Item>
-        <TextField
-          label="Price"
-          labelHidden
-          value={this.state.value}
-          onChange={this.handleChange}
-          align="right"
-        />
-      </Stack>
-    );
-  }
+  return (
+    <Stack>
+      <Stack.Item fill>Price</Stack.Item>
+      <TextField
+        label="Price"
+        labelHidden
+        value={textFieldValue}
+        onChange={handleTextFieldChange}
+        align="right"
+      />
+    </Stack>
+  );
 }
 ```
 
@@ -409,25 +401,21 @@ class RightAlignExample extends React.Component {
 Use to provide a short, non-essential hint about the expected input. Placeholder text is low-contrast, so don’t rely on it for important information.
 
 ```jsx
-class PlaceholderExample extends React.Component {
-  state = {
-    value: '',
-  };
+function PlaceholderExample() {
+  const [textFieldValue, setTextFieldValue] = useState('');
 
-  handleChange = (value) => {
-    this.setState({value});
-  };
+  const handleTextFieldChange = useCallback((value) => {
+    setTextFieldValue(value);
+  }, []);
 
-  render() {
-    return (
-      <TextField
-        label="Shipping zone name"
-        value={this.state.value}
-        onChange={this.handleChange}
-        placeholder="e.g. North America, Europe"
-      />
-    );
-  }
+  return (
+    <TextField
+      label="Shipping zone name"
+      value={textFieldValue}
+      onChange={handleTextFieldChange}
+      placeholder="e.g. North America, Europe"
+    />
+  );
 }
 ```
 
@@ -448,26 +436,24 @@ class PlaceholderExample extends React.Component {
 Use to show short instructional content below the text field. Help text works to help merchants understand how to fix errors that result from incorrect formatting (such as dates or passwords with specific character requirements). If more explanation is needed, link to the Shopify Help Center.
 
 ```jsx
-class HelpTextExample extends React.Component {
-  state = {
-    value: 'bernadette.lapresse@jadedpixel.com',
-  };
+function HelpTextExample() {
+  const [textFieldValue, setTextFieldValue] = useState(
+    'bernadette.lapresse@jadedpixel.com',
+  );
 
-  handleChange = (value) => {
-    this.setState({value});
-  };
+  const handleTextFieldChange = useCallback((value) => {
+    setTextFieldValue(value);
+  }, []);
 
-  render() {
-    return (
-      <TextField
-        label="Account email"
-        type="email"
-        value={this.state.value}
-        onChange={this.handleChange}
-        helpText="We’ll use this address if we need to contact you about your account."
-      />
-    );
-  }
+  return (
+    <TextField
+      label="Account email"
+      type="email"
+      value={textFieldValue}
+      onChange={handleTextFieldChange}
+      helpText="We’ll use this address if we need to contact you about your account."
+    />
+  );
 }
 ```
 
@@ -491,26 +477,22 @@ Use as a special form of help text that works best inline.
 - Use suffix for things like units of measure (“in”, “cm”).
 
 ```jsx
-class PrefixExample extends React.Component {
-  state = {
-    value: '2.00',
-  };
+function PrefixExample() {
+  const [textFieldValue, setTextFieldValue] = useState('2.00');
 
-  handleChange = (value) => {
-    this.setState({value});
-  };
+  const handleTextFieldChange = useCallback((value) => {
+    setTextFieldValue(value);
+  }, []);
 
-  render() {
-    return (
-      <TextField
-        label="Price"
-        type="number"
-        value={this.state.value}
-        onChange={this.handleChange}
-        prefix="$"
-      />
-    );
-  }
+  return (
+    <TextField
+      label="Price"
+      type="number"
+      value={textFieldValue}
+      onChange={handleTextFieldChange}
+      prefix="$"
+    />
+  );
 }
 ```
 
@@ -537,39 +519,34 @@ If inputting weight as a number and a separate unit of measurement, use a text f
 <!-- /content-for -->
 
 ```jsx
-class ConnectedFieldsExample extends React.Component {
-  state = {
-    value: '10.6',
-    selectValue: 'kg',
-  };
+function ConnectedFieldsExample() {
+  const [textFieldValue, setTextFieldValue] = useState('10.6');
+  const [selectValue, setSelectValue] = useState('kg');
 
-  handleChange = (value) => {
-    this.setState({value});
-  };
+  const handleTextFieldChange = useCallback((value) => {
+    setTextFieldValue(value);
+  }, []);
+  const handleSelectChange = useCallback((value) => {
+    setSelectValue(value);
+  }, []);
 
-  handleSelectChange = (selectValue) => {
-    this.setState({selectValue});
-  };
-
-  render() {
-    return (
-      <TextField
-        label="Weight"
-        type="number"
-        value={this.state.value}
-        onChange={this.handleChange}
-        connectedRight={
-          <Select
-            value={this.state.selectValue}
-            label="Weight unit"
-            onChange={this.handleSelectChange}
-            labelHidden
-            options={['kg', 'lb']}
-          />
-        }
-      />
-    );
-  }
+  return (
+    <TextField
+      label="Weight"
+      type="number"
+      value={textFieldValue}
+      onChange={handleTextFieldChange}
+      connectedRight={
+        <Select
+          value={selectValue}
+          label="Weight unit"
+          onChange={handleSelectChange}
+          labelHidden
+          options={['kg', 'lb']}
+        />
+      }
+    />
+  );
 }
 ```
 
@@ -614,25 +591,21 @@ For example, tap on a barcode icon to launch the camera and scan barcode for the
 Use to let merchants know if their input is valid or if there’s an error. Whenever possible, validate input as soon as merchants have finished interacting with a field (but not before). If a field already has an error, validate and remove errors as merchants type so they can immediately see when an error has been fixed.
 
 ```jsx
-class ValidationErrorExample extends React.Component {
-  state = {
-    value: '',
-  };
+function ValidationErrorExample() {
+  const [textFieldValue, setTextFieldValue] = useState('');
 
-  handleChange = (value) => {
-    this.setState({value});
-  };
+  const handleTextFieldChange = useCallback((value) => {
+    setTextFieldValue(value);
+  }, []);
 
-  render() {
-    return (
-      <TextField
-        label="Store name"
-        value={this.state.value}
-        onChange={this.handleChange}
-        error="Store name is required"
-      />
-    );
-  }
+  return (
+    <TextField
+      label="Store name"
+      value={textFieldValue}
+      onChange={handleTextFieldChange}
+      error="Store name is required"
+    />
+  );
 }
 ```
 
@@ -663,82 +636,80 @@ To render an invalid text field and its validation error separately:
 - Use an [inline error component](/components/forms/inline-error) to describe the invalid text field input, and set its `fieldID` prop to be the same unique indentifier as the text field component’s `id`
 
 ```jsx
-class SeparateValidationErrorExample extends React.Component {
-  state = {
-    content: '',
-    selectTypeValue: 'Product type',
-    selectConditionValue: 'is equal to',
-  };
+function SeparateValidationErrorExample() {
+  const [textFieldValue, setTextFieldValue] = useState('');
+  const [selectTypeValue, setSelectTypeValue] = useState('Product type');
+  const [selectConditionValue, setSelectConditionValue] = useState(
+    'is equal to',
+  );
 
-  handleSelectCollectionTypeChange = (selectTypeValue) => {
-    this.setState({selectTypeValue});
-  };
+  const handleTextFieldValueChange = useCallback(
+    (value) => setTextFieldValue(value),
+    [],
+  );
+  const handleSelectTypeChange = useCallback(
+    (value) => setSelectTypeValue(value),
+    [],
+  );
+  const handleSelectConditionChange = useCallback(
+    (value) => setSelectConditionValue(value),
+    [],
+  );
 
-  handleSelectCollectionConditionChange = (selectConditionValue) => {
-    this.setState({selectConditionValue});
-  };
+  const textFieldID = 'ruleContent';
+  const isInvalid = isValueInvalid(textFieldValue);
+  const errorMessage = isInvalid
+    ? 'Enter 3 or more characters for product type is equal to'
+    : '';
 
-  render() {
-    const {content} = this.state;
-    const textFieldID = 'ruleContent';
-    const isInvalid = this.isInvalid(content);
-    const errorMessage = isInvalid
-      ? 'Enter 3 or more characters for product type is equal to'
-      : '';
+  const formGroupMarkup = (
+    <Stack wrap={false} alignment="leading" spacing="tight">
+      <Stack.Item fill>
+        <Stack distribution="fill" spacing="tight">
+          <Select
+            labelHidden
+            label="Collection rule type"
+            options={['Product type']}
+            value={selectTypeValue}
+            onChange={handleSelectTypeChange}
+          />
+          <Select
+            labelHidden
+            label="Collection rule condition"
+            options={['is equal to']}
+            value={selectConditionValue}
+            onChange={handleSelectConditionChange}
+          />
+          <TextField
+            labelHidden
+            label="Collection rule content"
+            error={isInvalid}
+            id={textFieldID}
+            value={textFieldValue}
+            onChange={handleTextFieldValueChange}
+          />
+        </Stack>
+        <div style={{marginTop: '4px'}}>
+          <InlineError message={errorMessage} fieldID={textFieldID} />
+        </div>
+      </Stack.Item>
+      <Button icon={DeleteMinor} accessibilityLabel="Remove item" />
+    </Stack>
+  );
 
-    const formGroupMarkup = (
-      <Stack wrap={false} alignment="leading" spacing="tight">
-        <Stack.Item fill>
-          <Stack distribution="fill" spacing="tight">
-            <Select
-              labelHidden
-              label="Collection rule type"
-              options={['Product type']}
-              value={this.state.selectTypeValue}
-              onChange={this.handleSelectCollectionTypeChange}
-            />
-            <Select
-              labelHidden
-              label="Collection rule condition"
-              options={['is equal to']}
-              value={this.state.selectConditionValue}
-              onChange={this.handleSelectCollectionConditionChange}
-            />
-            <TextField
-              labelHidden
-              label="Collection rule content"
-              error={isInvalid}
-              id={textFieldID}
-              value={content}
-              onChange={this.handleChange}
-            />
-          </Stack>
-          <div style={{marginTop: '4px'}}>
-            <InlineError message={errorMessage} fieldID={textFieldID} />
-          </div>
-        </Stack.Item>
-        <Button icon={DeleteMinor} accessibilityLabel="Remove item" />
-      </Stack>
-    );
+  return (
+    <Card sectioned>
+      <FormLayout>{formGroupMarkup}</FormLayout>
+    </Card>
+  );
 
-    return (
-      <Card sectioned>
-        <FormLayout>{formGroupMarkup}</FormLayout>
-      </Card>
-    );
-  }
-
-  handleChange = (content) => {
-    this.setState({content});
-  };
-
-  isInvalid = (content) => {
+  function isValueInvalid(content) {
     if (!content) {
       return true;
     }
 
     return content.length < 3;
-  };
+  }
 }
 ```
 
@@ -759,26 +730,22 @@ Use to show that a textfield is not available for interaction. Most often used i
 Use to display the current number of characters in a text field. Use in conjunction with max length to display the current remaining number of characters in the text field.
 
 ```jsx
-class TextFieldExample extends React.Component {
-  state = {
-    value: 'Jaded Pixel',
-  };
+function TextFieldExample() {
+  const [textFieldValue, setTextFieldValue] = useState('1');
 
-  handleChange = (value) => {
-    this.setState({value});
-  };
+  const handleTextFieldChange = useCallback((value) => {
+    setTextFieldValue(value);
+  }, []);
 
-  render() {
-    return (
-      <TextField
-        label="Store name"
-        value={this.state.value}
-        onChange={this.handleChange}
-        maxLength={20}
-        showCharacterCount
-      />
-    );
-  }
+  return (
+    <TextField
+      label="Store name"
+      value={textFieldValue}
+      onChange={handleTextFieldChange}
+      maxLength={20}
+      showCharacterCount
+    />
+  );
 }
 ```
 
@@ -789,30 +756,25 @@ class TextFieldExample extends React.Component {
 Use to allow merchants to clear the content from a text field.
 
 ```jsx
-class TextFieldExample extends React.Component {
-  state = {
-    value: 'Jaded Pixel',
-  };
+function TextFieldExample() {
+  const [textFieldValue, setTextFieldValue] = useState('Jaded Pixel');
 
-  handleChange = (value) => {
-    this.setState({value});
-  };
+  const handleTextFieldChange = useCallback((value) => {
+    setTextFieldValue(value);
+  }, []);
+  const handleClearButtonClick = useCallback(() => {
+    setTextFieldValue('');
+  }, []);
 
-  handleClearButtonClick = () => {
-    this.setState({value: ''});
-  };
-
-  render() {
-    return (
-      <TextField
-        label="Store name"
-        value={this.state.value}
-        onChange={this.handleChange}
-        clearButton
-        onClearButtonClick={this.handleClearButtonClick}
-      />
-    );
-  }
+  return (
+    <TextField
+      label="Store name"
+      value={textFieldValue}
+      onChange={handleTextFieldChange}
+      clearButton
+      onClearButtonClick={handleClearButtonClick}
+    />
+  );
 }
 ```
 
