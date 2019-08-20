@@ -2,7 +2,7 @@ import React from 'react';
 import {mountWithAppProvider, findByTestID} from 'test-utilities/legacy';
 import {InlineError, Labelled, Connected, Select} from 'components';
 import {Resizer, Spinner} from '../components';
-import TextField from '../TextField';
+import {TextField} from '../TextField';
 
 describe('<TextField />', () => {
   it('allows specific props to pass through properties on the input', () => {
@@ -473,15 +473,14 @@ describe('<TextField />', () => {
         />,
       );
 
-      expect(
-        textField.find('#MyFieldCharacterCounter').prop<string>('aria-live'),
-      ).toBe('off');
+      expect(textField.find('#MyFieldCharacterCounter').prop('aria-live')).toBe(
+        'off',
+      );
 
       textField.find('input').simulate('focus');
-
-      expect(
-        textField.find('#MyFieldCharacterCounter').prop<string>('aria-live'),
-      ).toBe('polite');
+      expect(textField.find('#MyFieldCharacterCounter').prop('aria-live')).toBe(
+        'polite',
+      );
     });
   });
 
@@ -530,6 +529,24 @@ describe('<TextField />', () => {
           .last()
           .simulate('click');
         expect(spy).toHaveBeenCalledWith('2', 'MyTextField');
+      });
+
+      it('does not call the onChange if the value is not a number', () => {
+        const spy = jest.fn();
+        const element = mountWithAppProvider(
+          <TextField
+            id="MyTextField"
+            label="TextField"
+            type="number"
+            value="not a number"
+            onChange={spy}
+          />,
+        );
+        element
+          .find('[role="button"]')
+          .first()
+          .simulate('click');
+        expect(spy).not.toHaveBeenCalled();
       });
 
       it('handles incrementing from no value', () => {

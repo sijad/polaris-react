@@ -29,7 +29,7 @@ $stacking-order: (
   flex-wrap: wrap;
 
   > .Input {
-    overflow: auto;
+    overflow: hidden;
     padding-left: $backdrop-horizontal-spacing;
     padding-right: $backdrop-horizontal-spacing;
     resize: none;

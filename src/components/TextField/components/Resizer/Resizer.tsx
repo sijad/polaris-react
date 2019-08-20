@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useRef, useEffect, useCallback} from 'react';
 import {EventListener} from '../../../EventListener';
 import styles from '../../TextField.scss';
 
@@ -9,77 +9,75 @@ export interface ResizerProps {
   onHeightChange(height: number): void;
 }
 
-export class Resizer extends React.PureComponent<ResizerProps, never> {
-  private contentNode = React.createRef<HTMLDivElement>();
-  private minimumLinesNode = React.createRef<HTMLDivElement>();
-  private animationFrame: number | null = null;
+export function Resizer({
+  contents,
+  currentHeight,
+  minimumLines,
+  onHeightChange,
+}: ResizerProps) {
+  const contentNode = useRef<HTMLDivElement>(null);
+  const minimumLinesNode = useRef<HTMLDivElement>(null);
+  const animationFrame = useRef<number>();
 
-  componentDidMount() {
-    this.handleHeightCheck();
-  }
+  useEffect(() => {
+    return () => {
+      if (animationFrame.current) {
+        cancelAnimationFrame(animationFrame.current);
+      }
+    };
+  }, []);
 
-  componentDidUpdate() {
-    this.handleHeightCheck();
-  }
+  const minimumLinesMarkup = minimumLines ? (
+    <div
+      testID="MinimumLines"
+      ref={minimumLinesNode}
+      className={styles.DummyInput}
+      dangerouslySetInnerHTML={{
+        __html: getContentsForMinimumLines(minimumLines),
+      }}
+    />
+  ) : null;
 
-  componentWillUnmount() {
-    if (this.animationFrame) {
-      cancelAnimationFrame(this.animationFrame);
-    }
-  }
+  const handleHeightCheck = useCallback(
+    () => {
+      if (animationFrame.current) {
+        cancelAnimationFrame(animationFrame.current);
+      }
 
-  render() {
-    const {contents, minimumLines} = this.props;
+      animationFrame.current = requestAnimationFrame(() => {
+        if (!contentNode.current || !minimumLinesNode.current) {
+          return;
+        }
 
-    const minimumLinesMarkup = minimumLines ? (
+        const newHeight = Math.max(
+          contentNode.current.offsetHeight,
+          minimumLinesNode.current.offsetHeight,
+        );
+
+        if (newHeight !== currentHeight) {
+          onHeightChange(newHeight);
+        }
+      });
+    },
+    [currentHeight, onHeightChange],
+  );
+
+  useEffect(() => {
+    handleHeightCheck();
+  });
+
+  return (
+    <div testID="ResizerWrapper" aria-hidden className={styles.Resizer}>
+      <EventListener event="resize" handler={handleHeightCheck} />
       <div
-        testID="MinimumLines"
-        ref={this.minimumLinesNode}
+        testID="ContentsNode"
+        ref={contentNode}
         className={styles.DummyInput}
-        dangerouslySetInnerHTML={{
-          __html: getContentsForMinimumLines(minimumLines),
-        }}
+        dangerouslySetInnerHTML={{__html: getFinalContents(contents)}}
       />
-    ) : null;
-
-    return (
-      <div testID="ResizerWrapper" aria-hidden className={styles.Resizer}>
-        <EventListener event="resize" handler={this.handleHeightCheck} />
-        <div
-          testID="ContentsNode"
-          ref={this.contentNode}
-          className={styles.DummyInput}
-          dangerouslySetInnerHTML={{__html: getFinalContents(contents)}}
-        />
-        {minimumLinesMarkup}
-      </div>
-    );
-  }
-
-  private handleHeightCheck = () => {
-    if (this.animationFrame) {
-      cancelAnimationFrame(this.animationFrame);
-    }
-
-    this.animationFrame = requestAnimationFrame(() => {
-      const contentNode = this.contentNode.current;
-      const minimumLinesNode = this.minimumLinesNode.current;
-
-      if (!contentNode || !minimumLinesNode) {
-        return;
-      }
-
-      const newHeight = Math.max(
-        contentNode.offsetHeight,
-        minimumLinesNode.offsetHeight,
-      );
-      const {currentHeight, onHeightChange} = this.props;
-
-      if (newHeight !== currentHeight) {
-        onHeightChange(newHeight);
-      }
-    });
-  };
+      {minimumLinesMarkup}
+    </div>
+  );
 }
 
 const ENTITIES_TO_REPLACE = {
