@@ -81,13 +81,19 @@ class SchemeFactory {
 
     return {
       ...createSurfaceRange(surface),
-      ...createRoleRange(brand, 'brand'),
-      ...createRoleRange(interaction, 'interaction'),
-      ...createRoleRange(timeliness, 'timeliness'),
-      ...createRoleRange(positive, 'positive'),
-      ...createRoleRange(attention, 'attention'),
-      ...createRoleRange(warning, 'warning'),
-      ...createRoleRange(negative, 'negative'),
+      ...createRoleRange(brand, 'brand', {generateDarkenedValues: true}),
+      ...createRoleRange(interaction, 'interaction', {
+        generateDarkenedValues: true,
+      }),
+      ...createRoleRange(timeliness, 'timeliness', {
+        generateDarkenedValues: true,
+      }),
+      ...createRoleRange(positive, 'positive', {generateDarkenedValues: true}),
+      ...createRoleRange(attention, 'attention', {
+        generateDarkenedValues: true,
+      }),
+      ...createRoleRange(warning, 'warning', {generateDarkenedValues: true}),
+      ...createRoleRange(negative, 'negative', {generateDarkenedValues: true}),
     };
   }
 
@@ -95,12 +101,24 @@ class SchemeFactory {
     baseColor: string,
     colorRole: string,
     options?: {
-      opacify?: boolean;
-      stops?: number;
+      darkenedStops?: number;
+      lightenedStops?: number;
       increment?: number;
+      generateOpaqueValues?: boolean;
+      generateLightenedValues?: boolean;
+      generateDarkenedValues?: boolean;
+      generateSurfaceValues?: boolean;
     },
   ): CSSProperties => {
-    const {opacify = false, stops = 2, increment = 5} = options || {};
+    const {
+      generateOpaqueValues = false,
+      generateLightenedValues = false,
+      generateDarkenedValues = false,
+      generateSurfaceValues = false,
+      darkenedStops = 2,
+      lightenedStops = 2,
+      increment = 10,
+    } = options || {};
     const {isLightTheme} = this;
     const hslBaseColor = colorToHsla(baseColor) as HSLColor;
 
@@ -181,15 +199,28 @@ class SchemeFactory {
           baseColor,
         ) as HSLAColor),
       },
-      ...createDarkRange(stops, colorRole, hslBaseColor as HSLColor, increment),
       ...onBase,
-      ...{
+      ...(generateLightenedValues &&
+        createLightRange(
+          lightenedStops,
+          colorRole,
+          hslBaseColor as HSLColor,
+          increment,
+        )),
+      ...(generateDarkenedValues &&
+        createDarkRange(
+          darkenedStops,
+          colorRole,
+          hslBaseColor as HSLColor,
+          increment,
+        )),
+      ...(generateSurfaceValues && {
         [constructColorName(NAMESPACE, colorRole, 'surface')]: hslToString(
           surface,
         ),
-      },
-      ...onSurface,
-      ...(opacify && createOpaqueRange(baseColor, colorRole)),
+      }),
+      ...(generateSurfaceValues && onSurface),
+      ...(generateOpaqueValues && createOpaqueRange(baseColor, colorRole)),
     };
   };
 
@@ -200,8 +231,8 @@ class SchemeFactory {
     let greyRange: CSSProperties;
 
     const colorRole = 'surface';
-    const stops = 19;
-    const increment = 5;
+    const stops = 9;
+    const increment = 10;
     const options = {suffix: ''};
 
     if (isLightTheme) {
@@ -229,10 +260,11 @@ class SchemeFactory {
     });
 
     function getOnColor(baseIsLight: boolean) {
-      return hslToHex({
+      return hslToString({
         hue: hslBaseColor.hue,
         saturation: hslBaseColor.saturation,
-        lightness: baseIsLight ? 5 : 95,
+        lightness: baseIsLight ? 1 : 99,
+        alpha,
       });
     }
 
@@ -253,8 +285,8 @@ class SchemeFactory {
     //     - one darkened stop
     //
     //   - base
-    //     - card
-    //     - page
+    //     - foreground
+    //     - background
     //   - on base
     //     - subdued
     //     - icon
