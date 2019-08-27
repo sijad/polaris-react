@@ -91,8 +91,6 @@ export interface BaseLinkAction {
   url: string;
 }
 
-export interface LinkAction extends BaseLinkAction {}
-
 export interface BadgeAction {
   badge?: {
     status: 'new';

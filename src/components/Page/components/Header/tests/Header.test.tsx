@@ -10,7 +10,7 @@ import {
   Avatar,
 } from 'components';
 import {mountWithAppProvider} from 'test-utilities/legacy';
-import {LinkAction} from '../../../../../types';
+import {BaseLinkAction} from '../../../../../types';
 import {HeaderPrimaryAction} from '../../../types';
 import Header, {Props} from '../Header';
 import Title from '..';
@@ -69,11 +69,10 @@ describe('<Header />', () => {
   });
 
   describe('breadcrumbs', () => {
-    const breadcrumbs: LinkAction[] = [
+    const breadcrumbs: BaseLinkAction[] = [
       {
         content: 'Products',
         url: 'https://www.google.com',
-        target: 'REMOTE',
       },
     ];
 

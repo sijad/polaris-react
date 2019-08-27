@@ -3,14 +3,14 @@ import {ChevronLeftMinor} from '@shopify/polaris-icons';
 
 import Icon from '../Icon';
 import UnstyledLink from '../UnstyledLink';
-import {CallbackAction, LinkAction} from '../../types';
+import {CallbackAction, BaseLinkAction} from '../../types';
 import {handleMouseUpByBlurring} from '../../utilities/focus';
 
 import styles from './Breadcrumbs.scss';
 
 export interface Props {
   /** Collection of breadcrumbs */
-  breadcrumbs: Array<CallbackAction | LinkAction>;
+  breadcrumbs: Array<CallbackAction | BaseLinkAction>;
 }
 
 export default class Breadcrumbs extends React.PureComponent<Props, never> {
