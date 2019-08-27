@@ -1,12 +1,12 @@
 import React from 'react';
 import {mountWithAppProvider} from 'test-utilities/legacy';
-import {CallbackAction, BaseLinkAction} from '../../../types';
+import {CallbackAction, LinkAction} from '../../../types';
 import Breadcrumbs from '../Breadcrumbs';
 
 describe('<Breadcrumbs />', () => {
   describe('url', () => {
-    it('uses <a> tags when passed a BaseLinkAction', () => {
-      const linkBreadcrumbs: BaseLinkAction[] = [
+    it('uses <a> tags when passed a LinkAction', () => {
+      const linkBreadcrumbs: LinkAction[] = [
         {
           content: 'Products',
           url: 'https://www.shopify.com',

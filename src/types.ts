@@ -80,7 +80,7 @@ export interface AnimationProps {
   in?: boolean;
 }
 
-export interface BaseLinkAction {
+export interface LinkAction {
   /** A unique identifier for the action */
   id?: string;
   /** Content the action displays */
