@@ -171,26 +171,21 @@ describe('<Page />', () => {
   });
 
   describe('breadcrumbs', () => {
+    const breadcrumbs = [
+      {
+        content: 'Products',
+        onAction: noop,
+      },
+    ];
+
     it('renders a <Header /> when defined', () => {
-      const breadcrumbs = [
-        {
-          content: 'Products',
-          onAction: noop,
-        },
-      ];
       const page = mountWithAppProvider(
-        <Page {...mockProps} breadcrumb={breadcrumbs} />,
+        <Page {...mockProps} breadcrumbs={breadcrumbs} />,
       );
       expect(page.find(Header).exists()).toBeTruthy();
     });
 
     it('gets passed into the <Header />', () => {
-      const breadcrumbs = [
-        {
-          content: 'Products',
-          onAction: noop,
-        },
-      ];
       const page = mountWithAppProvider(
         <Page {...mockProps} breadcrumbs={breadcrumbs} />,
       );
