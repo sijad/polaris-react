@@ -53,7 +53,6 @@ export interface IconProps {
 }
 
 export type HeadingTagName = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p';
-export type AppBridgeTarget = 'ADMIN_PATH' | 'REMOTE' | 'APP';
 
 export type Error =
   | string
@@ -92,16 +91,7 @@ export interface BaseLinkAction {
   url: string;
 }
 
-export interface AppBridgeActionTarget {
-  /**
-   * Where to display the target link
-   * @default 'APP'
-   * @embeddedAppOnly
-   */
-  target?: AppBridgeTarget;
-}
-
-export interface LinkAction extends BaseLinkAction, AppBridgeActionTarget {}
+export interface LinkAction extends BaseLinkAction {}
 
 export interface BadgeAction {
   badge?: {
@@ -133,12 +123,6 @@ export interface DestructableAction extends Action {
   destructive?: boolean;
 }
 
-export interface AppBridgeAction
-  extends Action,
-    DisableableAction,
-    DestructableAction,
-    AppBridgeActionTarget {}
-
 export interface IconableAction extends Action {
   /** Source of the icon */
   icon?: IconProps['source'];
@@ -153,8 +137,7 @@ export interface ActionListItemDescriptor
   extends IconableAction,
     DisableableAction,
     BadgeAction,
-    DestructableAction,
-    AppBridgeAction {
+    DestructableAction {
   /** Visually hidden text for screen readers */
   accessibilityLabel?: string;
   /** Additional hint text to display with item */
@@ -180,7 +163,6 @@ export interface ComplexAction
   extends Action,
     DisableableAction,
     DestructableAction,
-    AppBridgeAction,
     IconableAction,
     LoadableAction {}
 

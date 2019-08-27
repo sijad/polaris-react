@@ -9,7 +9,6 @@ import {
   StickyManager,
   StickyManagerContext,
 } from '../../utilities/sticky-manager';
-import {AppBridgeContext, AppBridgeOptions} from '../../utilities/app-bridge';
 import {I18n, I18nContext, TranslationDictionary} from '../../utilities/i18n';
 import {LinkContext, LinkLikeComponent} from '../../utilities/link';
 
@@ -23,7 +22,6 @@ type FrameContextType = NonNullable<React.ContextType<typeof FrameContext>>;
 export type WithPolarisTestProviderOptions = {
   // Contexts provided by AppProvider
   i18n?: TranslationDictionary | TranslationDictionary[];
-  appBridge?: AppBridgeOptions;
   link?: LinkLikeComponent;
   theme?: Partial<Theme>;
   // Contexts provided by Frame
@@ -39,7 +37,6 @@ export default function PolarisTestProvider({
   strict,
   children,
   i18n,
-  appBridge,
   link,
   theme,
   frame,
@@ -52,10 +49,6 @@ export default function PolarisTestProvider({
 
   const stickyManager = new StickyManager();
 
-  // This typing is odd, but as appBridge is deprecated and going away in v5
-  // I'm not that worried about it
-  const appBridgeApp = appBridge as React.ContextType<typeof AppBridgeContext>;
-
   const mergedTheme = createThemeContext(theme);
 
   const mergedFrame = createFrameContext(frame);
@@ -65,15 +58,13 @@ export default function PolarisTestProvider({
       <I18nContext.Provider value={intl}>
         <ScrollLockManagerContext.Provider value={scrollLockManager}>
           <StickyManagerContext.Provider value={stickyManager}>
-            <AppBridgeContext.Provider value={appBridgeApp}>
-              <LinkContext.Provider value={link}>
-                <ThemeContext.Provider value={mergedTheme}>
-                  <FrameContext.Provider value={mergedFrame}>
-                    {children}
-                  </FrameContext.Provider>
-                </ThemeContext.Provider>
-              </LinkContext.Provider>
-            </AppBridgeContext.Provider>
+            <LinkContext.Provider value={link}>
+              <ThemeContext.Provider value={mergedTheme}>
+                <FrameContext.Provider value={mergedFrame}>
+                  {children}
+                </FrameContext.Provider>
+              </ThemeContext.Provider>
+            </LinkContext.Provider>
           </StickyManagerContext.Provider>
         </ScrollLockManagerContext.Provider>
       </I18nContext.Provider>

@@ -231,11 +231,6 @@ export {
   SelectedItems as ResourceListSelectedItems,
 } from '../utilities/resource-list';
 
-export {
-  default as ResourcePicker,
-  Props as ResourcePickerProps,
-} from './ResourcePicker';
-
 export {default as Scrollable, Props as ScrollableProps} from './Scrollable';
 
 export {default as ScrollLock} from './ScrollLock';
