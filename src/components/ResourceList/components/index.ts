@@ -4,8 +4,3 @@ export {
   default as CheckableButton,
   Props as CheckableButtonProps,
 } from './CheckableButton';
-
-export {
-  default as FilterControl,
-  Props as FilterControlProps,
-} from './FilterControl';
