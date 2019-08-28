@@ -188,7 +188,6 @@ $resource-list-item-variables: (
 .Actions {
   position: absolute;
   top: 0;
-  right: resource-list-item(padding);
   display: flex;
   pointer-events: initial;
   height: 100%;
