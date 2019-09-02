@@ -46,7 +46,7 @@ $resource-list-item-variables: (
       // stylelint-disable-next-line selector-max-specificity
       .Actions {
         @include action-unhide;
-        right: spacing(loose);
+        right: spacing();
 
         // stylelint-disable-next-line max-nesting-depth
         @include page-content-when-partially-condensed {
