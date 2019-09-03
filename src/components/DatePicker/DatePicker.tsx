@@ -11,13 +11,8 @@ import {
   getPreviousDisplayYear,
   getPreviousDisplayMonth,
   Weekdays,
-  isSameDay,
 } from '@shopify/javascript-utilities/dates';
 
-import {
-  withAppProvider,
-  WithAppProviderProps,
-} from '../../utilities/with-app-provider';
 import {Button} from '../Button';
 import {useI18n} from '../../utilities/i18n';
 import {monthName} from './utilities';
@@ -54,7 +49,7 @@ export interface BaseProps {
 
 export interface DatePickerProps extends BaseProps {}
 
-function DatePicker({
+export function DatePicker({
   id,
   selected,
   month,
@@ -82,13 +77,16 @@ function DatePicker({
     setFocusDate(date);
   }, []);
 
-  const setFocusDateAndHandleMonthChange = (date: Date) => {
-    if (onMonthChange) {
-      onMonthChange(date.getMonth(), date.getFullYear());
-    }
-    setHoverDate(date);
-    setFocusDate(date);
-  };
+  const setFocusDateAndHandleMonthChange = useCallback(
+    (date: Date) => {
+      if (onMonthChange) {
+        onMonthChange(date.getMonth(), date.getFullYear());
+      }
+      setHoverDate(date);
+      setFocusDate(date);
+    },
+    [onMonthChange],
+  );
 
   const handleDateSelection = useCallback(
     (range: Range) => {
@@ -101,81 +99,78 @@ function DatePicker({
     [onChange],
   );
 
-  // private handleDateSelection = (range: Range) => {
-  //   const {end} = range;
-  //   const {onChange = noop} = this.props;
+  const handleMonthChangeClick = useCallback(
+    (month: Months, year: Year) => {
+      if (!onMonthChange) {
+        return;
+      }
+      setFocusDate(undefined);
+      onMonthChange(month, year);
+    },
+    [onMonthChange],
+  );
 
-  //   this.setState({hoverDate: end, focusDate: new Date(end)}, () =>
-  //     onChange(range),
-  //   );
-  // };
+  const handleHover = useCallback((date: Date) => {
+    setHoverDate(date);
+  }, []);
 
-  // private handleMonthChangeClick = (month: Months, year: Year) => {
-  //   const {onMonthChange} = this.props;
-  //   if (!onMonthChange) {
-  //     return;
-  //   }
-  //   this.setState({
-  //     focusDate: undefined,
-  //   });
+  const handleKeyUp = useCallback(
+    (event: React.KeyboardEvent<HTMLElement>) => {
+      const {key} = event;
 
-  //   onMonthChange(month, year);
-  // };
+      const range = deriveRange(selected);
+      const focusedDate = focusDate || (range && range.start);
 
-  // private handleHover = (date: Date) => {
-  //   this.setState({
-  //     hoverDate: date,
-  //   });
-  // };
+      if (focusedDate == null) {
+        return;
+      }
 
-  // private handleKeyUp = (event: React.KeyboardEvent<HTMLElement>) => {
-  //   const {key} = event;
-  //   const {selected, disableDatesBefore, disableDatesAfter} = this.props;
+      if (key === 'ArrowUp') {
+        const previousWeek = new Date(focusedDate);
+        previousWeek.setDate(focusedDate.getDate() - 7);
+        if (
+          !(
+            disableDatesBefore && isDateBefore(previousWeek, disableDatesBefore)
+          )
+        ) {
+          setFocusDateAndHandleMonthChange(previousWeek);
+        }
+      }
 
-  //   const {focusDate} = this.state;
-  //   const range = deriveRange(selected);
-  //   const focusedDate = focusDate || (range && range.start);
+      if (key === 'ArrowDown') {
+        const nextWeek = new Date(focusedDate);
+        nextWeek.setDate(focusedDate.getDate() + 7);
+        if (!(disableDatesAfter && isDateAfter(nextWeek, disableDatesAfter))) {
+          setFocusDateAndHandleMonthChange(nextWeek);
+        }
+      }
 
-  //   if (focusedDate == null) {
-  //     return;
-  //   }
+      if (key === 'ArrowRight') {
+        const tomorrow = new Date(focusedDate);
+        tomorrow.setDate(focusedDate.getDate() + 1);
+        if (!(disableDatesAfter && isDateAfter(tomorrow, disableDatesAfter))) {
+          setFocusDateAndHandleMonthChange(tomorrow);
+        }
+      }
 
-  //   if (key === 'ArrowUp') {
-  //     const previousWeek = new Date(focusedDate);
-  //     previousWeek.setDate(focusedDate.getDate() - 7);
-  //     if (
-  //       !(disableDatesBefore && isDateBefore(previousWeek, disableDatesBefore))
-  //     ) {
-  //       this.setFocusDateAndHandleMonthChange(previousWeek);
-  //     }
-  //   }
-
-  //   if (key === 'ArrowDown') {
-  //     const nextWeek = new Date(focusedDate);
-  //     nextWeek.setDate(focusedDate.getDate() + 7);
-  //     if (!(disableDatesAfter && isDateAfter(nextWeek, disableDatesAfter))) {
-  //       this.setFocusDateAndHandleMonthChange(nextWeek);
-  //     }
-  //   }
-
-  //   if (key === 'ArrowRight') {
-  //     const tomorrow = new Date(focusedDate);
-  //     tomorrow.setDate(focusedDate.getDate() + 1);
-  //     if (!(disableDatesAfter && isDateAfter(tomorrow, disableDatesAfter))) {
-  //       this.setFocusDateAndHandleMonthChange(tomorrow);
-  //     }
-  //   }
-
-  //   if (key === 'ArrowLeft') {
-  //     const yesterday = new Date(focusedDate);
-  //     yesterday.setDate(focusedDate.getDate() - 1);
-  //     if (
-  //       !(disableDatesBefore && isDateBefore(yesterday, disableDatesBefore))
-  //     ) {
-  //       this.setFocusDateAndHandleMonthChange(yesterday);
-  //     }
-  //   }
-  // };
+      if (key === 'ArrowLeft') {
+        const yesterday = new Date(focusedDate);
+        yesterday.setDate(focusedDate.getDate() - 1);
+        if (
+          !(disableDatesBefore && isDateBefore(yesterday, disableDatesBefore))
+        ) {
+          setFocusDateAndHandleMonthChange(yesterday);
+        }
+      }
+    },
+    [
+      disableDatesAfter,
+      disableDatesBefore,
+      focusDate,
+      selected,
+      setFocusDateAndHandleMonthChange,
+    ],
+  );
 
   const showNextYear = getNextDisplayYear(month, year);
   const showNextMonth = getNextDisplayMonth(month);
@@ -198,14 +193,14 @@ function DatePicker({
 
   const secondDatePicker = multiMonth ? (
     <Month
-      onFocus={this.handleFocus}
+      onFocus={handleFocus}
       focusedDate={focusDate}
       month={showNextMonth}
       year={showNextYear}
       selected={deriveRange(selected)}
       hoverDate={hoverDate}
-      onChange={this.handleDateSelection}
-      onHover={this.handleHover}
+      onChange={handleDateSelection}
+      onHover={handleHover}
       disableDatesBefore={disableDatesBefore}
       disableDatesAfter={disableDatesAfter}
       allowRange={allowRange}
@@ -218,7 +213,7 @@ function DatePicker({
       id={id}
       className={styles.DatePicker}
       onKeyDown={handleKeyDown}
-      onKeyUp={this.handleKeyUp}
+      onKeyUp={handleKeyUp}
     >
       <div className={styles.Header}>
         <Button
@@ -231,11 +226,9 @@ function DatePicker({
               showPreviousYear,
             },
           )}
-          onClick={this.handleMonthChangeClick.bind(
-            null,
-            showPreviousMonth,
-            showPreviousYear,
-          )}
+          onClick={() =>
+            handleMonthChangeClick(showPreviousMonth, showPreviousYear)
+          }
         />
         <Button
           plain
@@ -244,23 +237,19 @@ function DatePicker({
             nextMonth,
             nextYear,
           })}
-          onClick={this.handleMonthChangeClick.bind(
-            null,
-            showNextMonth,
-            showNextYear,
-          )}
+          onClick={() => handleMonthChangeClick(showNextMonth, showNextYear)}
         />
       </div>
       <div className={styles.MonthContainer}>
         <Month
-          onFocus={this.handleFocus}
+          onFocus={handleFocus}
           focusedDate={focusDate}
           month={month}
           year={year}
           selected={deriveRange(selected)}
           hoverDate={hoverDate}
-          onChange={this.handleDateSelection}
-          onHover={this.handleHover}
+          onChange={handleDateSelection}
+          onHover={handleHover}
           disableDatesBefore={disableDatesBefore}
           disableDatesAfter={disableDatesAfter}
           allowRange={allowRange}
@@ -288,32 +277,6 @@ function handleKeyDown(event: React.KeyboardEvent<HTMLElement>) {
   }
 }
 
-function isSameSelectedDate(
-  previousDate?: DatePickerProps['selected'],
-  currentDate?: DatePickerProps['selected'],
-) {
-  if (previousDate == null || currentDate == null) {
-    return previousDate == null && currentDate == null;
-  }
-
-  if (previousDate instanceof Date || currentDate instanceof Date) {
-    return (
-      previousDate instanceof Date &&
-      currentDate instanceof Date &&
-      isSameDay(previousDate, currentDate)
-    );
-  }
-
-  return (
-    isSameDay(previousDate.start, currentDate.start) &&
-    isSameDay(previousDate.end, currentDate.end)
-  );
-}
-
 function deriveRange(selected?: Date | Range) {
   return selected instanceof Date ? {start: selected, end: selected} : selected;
 }
-
-// Use named export once withAppProvider is refactored away
-// eslint-disable-next-line import/no-default-export
-export default withAppProvider<DatePickerProps>()(DatePicker);
