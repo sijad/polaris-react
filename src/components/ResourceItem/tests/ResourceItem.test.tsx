@@ -10,6 +10,7 @@ import {
   Checkbox,
   Thumbnail,
   UnstyledLink,
+  Button,
 } from 'components';
 import {ResourceListContext} from '../../../utilities/resource-list';
 import ResourceItem from '../ResourceItem';
@@ -40,6 +41,7 @@ describe('<ResourceItem />', () => {
   const itemId = 'itemId';
   const selectedItemId = 'selectedId';
   const accessibilityLabel = 'link anchor aria-label';
+  const name = 'item name';
 
   const mockSelectableContext = {
     ...mockDefaultContext,
@@ -84,6 +86,67 @@ describe('<ResourceItem />', () => {
       expect(item.find(UnstyledLink).prop('aria-label')).toBe(
         accessibilityLabel,
       );
+    });
+  });
+
+  describe('name', () => {
+    it('is used on the Checkbox label when item is not selected', () => {
+      const item = mountWithAppProvider(
+        <ResourceListContext.Provider value={mockSelectableContext}>
+          <ResourceItem
+            accessibilityLabel={accessibilityLabel}
+            id={itemId}
+            url="https://shopify.com"
+            name={name}
+          />
+        </ResourceListContext.Provider>,
+      );
+
+      const expectedLabel = `Select: ${name}`;
+
+      expect(item.find(Checkbox).prop('label')).toBe(expectedLabel);
+    });
+
+    it('is used on the Checkbox label when item is selected', () => {
+      const item = mountWithAppProvider(
+        <ResourceListContext.Provider value={mockSelectableContext}>
+          <ResourceItem
+            accessibilityLabel={accessibilityLabel}
+            id={selectedItemId}
+            url="https://shopify.com"
+            name={name}
+          />
+        </ResourceListContext.Provider>,
+      );
+
+      const expectedLabel = `Deselect: ${name}`;
+
+      expect(item.find(Checkbox).prop('label')).toBe(expectedLabel);
+    });
+
+    it('is used on the disclosure action menu when there are persistent actions', () => {
+      const item = mountWithAppProvider(
+        <ResourceListContext.Provider value={mockSelectableContext}>
+          <ResourceItem
+            accessibilityLabel={accessibilityLabel}
+            id={selectedItemId}
+            url="https://shopify.com"
+            name={name}
+            shortcutActions={[{content: 'action'}]}
+            persistActions
+          />
+        </ResourceListContext.Provider>,
+      );
+
+      const expectedLabel = `Actions for ${name}`;
+
+      expect(
+        item
+          .find(Button)
+          .findWhere(
+            (node) => node.prop('accessibilityLabel') === expectedLabel,
+          ),
+      ).toHaveLength(1);
     });
   });
 

@@ -13,6 +13,7 @@ Use [the changelog guidelines](https://git.io/polaris-changelog-guidelines) to f
 ### Bug fixes
 
 - Fixed animation for Modal when being rendered asynchronously ([#2076](https://github.com/Shopify/polaris-react/pull/2076))
+- Added `name` prop to `ResourceItem` to fix accessibility labels ([#2077](https://github.com/Shopify/polaris-react/pull/2077))
 
 ### Documentation
 

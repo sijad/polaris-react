@@ -35,8 +35,10 @@ interface WithContextTypes<IJ> {
 }
 
 export interface Props {
-  /** Visually hidden text for screen readers */
+  /** Visually hidden text for screen readers used for item link*/
   accessibilityLabel?: string;
+  /** Individual item name used by various text labels */
+  name?: string;
   /** Id of the element the item onClick controls */
   ariaControls?: string;
   /** Tells screen reader the controlled element is expanded */
@@ -143,6 +145,7 @@ class BaseResourceItem extends React.Component<CombinedProps, State> {
       persistActions = false,
       polaris: {intl},
       accessibilityLabel,
+      name,
       context: {selectable, selectMode, loading},
     } = this.props;
 
@@ -158,10 +161,10 @@ class BaseResourceItem extends React.Component<CombinedProps, State> {
     ) : null;
 
     const checkboxAccessibilityLabel =
-      accessibilityLabel || intl.translate('Polaris.Common.checkbox');
+      name || intl.translate('Polaris.Common.checkbox');
 
     if (selectable) {
-      const label = selected
+      const checkBoxLabel = selected
         ? intl.translate('Polaris.ResourceList.Item.deselectItem', {
             accessibilityLabel: checkboxAccessibilityLabel,
           })
@@ -180,7 +183,7 @@ class BaseResourceItem extends React.Component<CombinedProps, State> {
               <Checkbox
                 testID="Checkbox"
                 id={this.checkboxId}
-                label={label}
+                label={checkBoxLabel}
                 labelHidden
                 checked={selected}
                 disabled={loading}
@@ -226,14 +229,18 @@ class BaseResourceItem extends React.Component<CombinedProps, State> {
           </div>
         );
 
+        const disclosureAccessibilityLabel = name
+          ? intl.translate('Polaris.ResourceList.Item.actionsDropdownLabel', {
+              accessibilityLabel: name,
+            })
+          : intl.translate('Polaris.ResourceList.Item.actionsDropdown');
+
         disclosureMarkup = (
           <div className={styles.Disclosure} onClick={stopPropagation}>
             <Popover
               activator={
                 <Button
-                  accessibilityLabel={intl.translate(
-                    'Polaris.ResourceList.Item.actionsDropdown',
-                  )}
+                  accessibilityLabel={disclosureAccessibilityLabel}
                   onClick={this.handleActionsClick}
                   plain
                   icon={HorizontalDotsMinor}
