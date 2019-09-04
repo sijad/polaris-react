@@ -43,6 +43,8 @@ export interface FrameProps {
    * @default false
    */
   showMobileNavigation?: boolean;
+  /** The RefObject you wish to be focused when clicking the skip to content link */
+  skipToContentTarget?: React.RefObject<HTMLAnchorElement>;
   /** A callback function to handle clicking the mobile navigation dismiss button */
   onNavigationDismiss?(): void;
 }
@@ -81,7 +83,8 @@ class Frame extends React.PureComponent<CombinedProps, State> {
   private contextualSaveBar: ContextualSaveBarProps | null;
   private globalRibbonContainer: HTMLDivElement | null = null;
   private navigationNode = createRef<HTMLDivElement>();
-  private skipToMainContentTargetNode = React.createRef<HTMLAnchorElement>();
+  private skipToMainContentTargetNode =
+    this.props.skipToContentTarget || React.createRef<HTMLAnchorElement>();
 
   componentDidMount() {
     this.handleResize();
@@ -112,6 +115,7 @@ class Frame extends React.PureComponent<CombinedProps, State> {
       globalRibbon,
       showMobileNavigation = false,
       polaris: {intl},
+      skipToContentTarget,
     } = this.props;
 
     const navClassName = classNames(
@@ -203,10 +207,15 @@ class Frame extends React.PureComponent<CombinedProps, State> {
       skipFocused && styles.focused,
     );
 
+    const skipTarget =
+      skipToContentTarget && skipToContentTarget.current
+        ? skipToContentTarget.current.id
+        : APP_FRAME_MAIN_ANCHOR_TARGET;
+
     const skipMarkup = (
       <div className={skipClassName}>
         <a
-          href={`#${APP_FRAME_MAIN_ANCHOR_TARGET}`}
+          href={`#${skipTarget}`}
           onFocus={this.handleFocus}
           onBlur={this.handleBlur}
           onClick={this.handleClick}
@@ -238,14 +247,15 @@ class Frame extends React.PureComponent<CombinedProps, State> {
         />
       ) : null;
 
-    const skipToMainContentTarget = (
-      // eslint-disable-next-line jsx-a11y/anchor-is-valid
-      <a
-        id={APP_FRAME_MAIN_ANCHOR_TARGET}
-        ref={this.skipToMainContentTargetNode}
-        tabIndex={-1}
-      />
-    );
+    const skipToMainContentTarget =
+      skipToContentTarget && skipToContentTarget.current ? null : (
+        // eslint-disable-next-line jsx-a11y/anchor-is-valid
+        <a
+          id={APP_FRAME_MAIN_ANCHOR_TARGET}
+          ref={this.skipToMainContentTargetNode}
+          tabIndex={-1}
+        />
+      );
 
     const context = {
       showToast: this.showToast,

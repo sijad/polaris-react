@@ -8,7 +8,7 @@ import {
   ContextualSaveBar as PolarisContextualSavebar,
   Loading as PolarisLoading,
 } from 'components';
-import Frame from '../Frame';
+import Frame, {APP_FRAME_MAIN_ANCHOR_TARGET} from '../Frame';
 import {
   ContextualSaveBar as FrameContextualSavebar,
   Loading as FrameLoading,
@@ -153,6 +153,38 @@ describe('<Frame />', () => {
     const mainAnchor = frame.find('main').find('a');
     trigger(frame.find('a').at(0), 'onClick');
     expect(mainAnchor.getDOMNode()).toBe(document.activeElement);
+  });
+
+  it('sets focus to target element when the skip to content link is clicked', () => {
+    const targetId = 'SkipToContentTarget';
+    const targetRef = React.createRef<HTMLAnchorElement>();
+
+    const skipToContentTarget = (
+      // eslint-disable-next-line jsx-a11y/anchor-is-valid
+      <a id={targetId} ref={targetRef} tabIndex={-1} />
+    );
+
+    const frame = mountWithAppProvider(
+      <Frame skipToContentTarget={targetRef}>{skipToContentTarget}</Frame>,
+    );
+
+    const targetAnchor = frame.find(`#${targetId}`);
+    trigger(frame.find('a').at(0), 'onClick');
+
+    expect(targetAnchor.getDOMNode()).toBe(document.activeElement);
+  });
+
+  it('falls back to default skip to content target when current ref not found', () => {
+    const targetRef = React.createRef<HTMLAnchorElement>();
+
+    const frame = mountWithAppProvider(
+      <Frame skipToContentTarget={targetRef} />,
+    );
+
+    const targetAnchor = frame.find(`#${APP_FRAME_MAIN_ANCHOR_TARGET}`);
+    trigger(frame.find('a').at(0), 'onClick');
+
+    expect(targetAnchor.getDOMNode()).toBe(document.activeElement);
   });
 
   it('renders with a has nav data attribute when nav is passed', () => {
