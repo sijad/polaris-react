@@ -160,17 +160,9 @@ class BaseResourceItem extends React.Component<CombinedProps, State> {
       </div>
     ) : null;
 
-    const checkboxAccessibilityLabel =
-      name || intl.translate('Polaris.Common.checkbox');
-
     if (selectable) {
-      const checkBoxLabel = selected
-        ? intl.translate('Polaris.ResourceList.Item.deselectItem', {
-            accessibilityLabel: checkboxAccessibilityLabel,
-          })
-        : intl.translate('Polaris.ResourceList.Item.selectItem', {
-            accessibilityLabel: checkboxAccessibilityLabel,
-          });
+      const checkboxAccessibilityLabel =
+        name || accessibilityLabel || intl.translate('Polaris.Common.checkbox');
 
       handleMarkup = (
         <div
@@ -183,7 +175,7 @@ class BaseResourceItem extends React.Component<CombinedProps, State> {
               <Checkbox
                 testID="Checkbox"
                 id={this.checkboxId}
-                label={checkBoxLabel}
+                label={checkboxAccessibilityLabel}
                 labelHidden
                 checked={selected}
                 disabled={loading}

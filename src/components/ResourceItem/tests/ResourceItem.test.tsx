@@ -90,7 +90,7 @@ describe('<ResourceItem />', () => {
   });
 
   describe('name', () => {
-    it('is used on the Checkbox label when item is not selected', () => {
+    it('is used as the Checkbox label', () => {
       const item = mountWithAppProvider(
         <ResourceListContext.Provider value={mockSelectableContext}>
           <ResourceItem
@@ -102,24 +102,7 @@ describe('<ResourceItem />', () => {
         </ResourceListContext.Provider>,
       );
 
-      const expectedLabel = `Select: ${name}`;
-
-      expect(item.find(Checkbox).prop('label')).toBe(expectedLabel);
-    });
-
-    it('is used on the Checkbox label when item is selected', () => {
-      const item = mountWithAppProvider(
-        <ResourceListContext.Provider value={mockSelectableContext}>
-          <ResourceItem
-            accessibilityLabel={accessibilityLabel}
-            id={selectedItemId}
-            url="https://shopify.com"
-            name={name}
-          />
-        </ResourceListContext.Provider>,
-      );
-
-      const expectedLabel = `Deselect: ${name}`;
+      const expectedLabel = name;
 
       expect(item.find(Checkbox).prop('label')).toBe(expectedLabel);
     });
