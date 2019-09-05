@@ -161,29 +161,21 @@ describe('<Frame />', () => {
 
     const skipToContentTarget = (
       // eslint-disable-next-line jsx-a11y/anchor-is-valid
-      <a id={targetId} ref={targetRef} tabIndex={-1} />
+      <a id={targetId} ref={targetRef} tabIndex={-1} href="" />
     );
 
     const frame = mountWithAppProvider(
       <Frame skipToContentTarget={targetRef}>{skipToContentTarget}</Frame>,
     );
 
+    const triggerAnchor = frame.find('a').at(0);
     const targetAnchor = frame.find(`#${targetId}`);
-    trigger(frame.find('a').at(0), 'onClick');
+    trigger(triggerAnchor, 'onFocus');
+    trigger(triggerAnchor, 'onClick');
 
-    expect(targetAnchor.getDOMNode()).toBe(document.activeElement);
-  });
-
-  it('falls back to default skip to content target when current ref not found', () => {
-    const targetRef = React.createRef<HTMLAnchorElement>();
-
-    const frame = mountWithAppProvider(
-      <Frame skipToContentTarget={targetRef} />,
+    expect(triggerAnchor.getDOMNode().getAttribute('href')).toBe(
+      `#${targetId}`,
     );
-
-    const targetAnchor = frame.find(`#${APP_FRAME_MAIN_ANCHOR_TARGET}`);
-    trigger(frame.find('a').at(0), 'onClick');
-
     expect(targetAnchor.getDOMNode()).toBe(document.activeElement);
   });
 

@@ -207,10 +207,9 @@ class Frame extends React.PureComponent<CombinedProps, State> {
       skipFocused && styles.focused,
     );
 
-    const skipTarget =
-      skipToContentTarget && skipToContentTarget.current
-        ? skipToContentTarget.current.id
-        : APP_FRAME_MAIN_ANCHOR_TARGET;
+    const skipTarget = skipToContentTarget
+      ? (skipToContentTarget.current && skipToContentTarget.current.id) || ''
+      : APP_FRAME_MAIN_ANCHOR_TARGET;
 
     const skipMarkup = (
       <div className={skipClassName}>
@@ -247,15 +246,14 @@ class Frame extends React.PureComponent<CombinedProps, State> {
         />
       ) : null;
 
-    const skipToMainContentTarget =
-      skipToContentTarget && skipToContentTarget.current ? null : (
-        // eslint-disable-next-line jsx-a11y/anchor-is-valid
-        <a
-          id={APP_FRAME_MAIN_ANCHOR_TARGET}
-          ref={this.skipToMainContentTargetNode}
-          tabIndex={-1}
-        />
-      );
+    const skipToMainContentTarget = skipToContentTarget ? null : (
+      // eslint-disable-next-line jsx-a11y/anchor-is-valid
+      <a
+        id={APP_FRAME_MAIN_ANCHOR_TARGET}
+        ref={this.skipToMainContentTargetNode}
+        tabIndex={-1}
+      />
+    );
 
     const context = {
       showToast: this.showToast,
