@@ -236,10 +236,6 @@ $resource-list-item-variables: (
     display: none;
   }
 
-  @include breakpoint-after(resource-list-item(breakpoint-small)) {
-    right: -1 * spacing(loose);
-  }
-
   @include page-content-when-partially-condensed {
     display: flex;
     justify-content: center;
